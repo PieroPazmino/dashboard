@@ -11,14 +11,14 @@ export default function IndicatorWeather(config: Indicator) {
     return (
         <Paper
             sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column'
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column'
             }}
-          >
-            <Typography component="h2" variant="h6" 
-                        color="primary" gutterBottom>
-                {config.title} 
+        >
+            <Typography component="h2" variant="h6"
+                color="primary" gutterBottom>
+                {config.title}
             </Typography>
             <Typography component="p" variant="h4">
                 {config.value}
@@ -26,7 +26,7 @@ export default function IndicatorWeather(config: Indicator) {
             <Typography color="text.secondary" sx={{ flex: 1 }}>
                 {config.subtitle}
             </Typography>
-        </Paper> 
+        </Paper>
     )
 }
 
