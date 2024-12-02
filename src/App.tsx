@@ -1,3 +1,4 @@
+// src/App.tsx
 import './App.css'
 import Grid from '@mui/material/Grid2'
 import IndicatorWeather from './components/IndicatorWeather';
@@ -23,7 +24,7 @@ function App() {
       let response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Guayaquil&mode=xml&appid=${API_KEY}`);
       let savedTextXML = await response.text();
 
-      {/* XML Parser */ }
+      // XML Parser
       const parser = new DOMParser();
       const xml = parser.parseFromString(savedTextXML, "application/xml");
 
@@ -85,16 +86,6 @@ function App() {
 
   return (
     <Grid container spacing={5}>
-
-      {/* Indicadores }
-      <Grid size={{ xs: 12, xl: 3 }}> <IndicatorWeather title={'Indicator 1'} subtitle={'Unidad 1'} value={"1.23"} /> </Grid>
-      <Grid size={{ xs: 12, xl: 3 }}> <IndicatorWeather title={'Indicator 2'} subtitle={'Unidad 2'} value={"3.12"} /> </Grid>
-      <Grid size={{ xs: 12, xl: 3 }}> <IndicatorWeather title={'Indicator 3'} subtitle={'Unidad 3'} value={"2.31"} /> </Grid>
-      <Grid size={{ xs: 12, xl: 3 }}> <IndicatorWeather title={'Indicator 4'} subtitle={'Unidad 4'} value={"3.21"} /> </Grid>
-      
-
-      
-      {/* Tabla */}
       {renderIndicators()}
       <Grid size={{ xs: 12, xl: 8 }}></Grid>
 
@@ -104,7 +95,7 @@ function App() {
           <ControlWeather />
         </Grid>
         <Grid size={{ xs: 12, xl: 9 }}>
-          <TableWeather />
+          <TableWeather itemsIn={items} />
         </Grid>
       </Grid>
 
