@@ -1,6 +1,3 @@
-/*import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'*/
 import './App.css'
 import Grid from '@mui/material/Grid2'
 import IndicatorWeather from './components/IndicatorWeather';
@@ -8,6 +5,7 @@ import TableWeather from './components/TableWeather';
 import ControlWeather from './components/ControlWeather';
 import LineChartWeather from './components/LineChartWeather';
 import { useEffect, useState } from 'react';
+import Item from './interface/Item';
 
 interface Indicator {
   title?: String;
@@ -16,74 +14,74 @@ interface Indicator {
 }
 
 function App() {
-  /*const [count, setCount] = useState(0)*/
+  const [indicators, setIndicators] = useState<Indicator[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
 
-  {/* Variable de estado y función de actualización */ }
-  let [indicators, setIndicators] = useState<Indicator[]>([])
-
-  {/* Hook: useEffect */ }
   useEffect(() => {
-
-    let request = async () => {
-
-      {/* Request */ }
-      let API_KEY = "98acfabcda9c5482335016a1b987592d"
-      let response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Guayaquil&mode=xml&appid=${API_KEY}`)
+    const request = async () => {
+      let API_KEY = "98acfabcda9c5482335016a1b987592d";
+      let response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Guayaquil&mode=xml&appid=${API_KEY}`);
       let savedTextXML = await response.text();
 
       {/* XML Parser */ }
       const parser = new DOMParser();
       const xml = parser.parseFromString(savedTextXML, "application/xml");
 
-      {/* Arreglo para agregar los resultados */ }
+      let dataToIndicators: Indicator[] = [];
 
-      let dataToIndicators: Indicator[] = new Array<Indicator>();
+      let name = xml.getElementsByTagName("name")[0].innerHTML || "";
+      dataToIndicators.push({ "title": "Location", "subtitle": "City", "value": name });
 
-      {/* 
-           Análisis, extracción y almacenamiento del contenido del XML 
-           en el arreglo de resultados
-       */}
+      let location = xml.getElementsByTagName("location")[1];
 
-      let name = xml.getElementsByTagName("name")[0].innerHTML || ""
-      dataToIndicators.push({ "title": "Location", "subtitle": "City", "value": name })
+      let latitude = location.getAttribute("latitude") || "";
+      dataToIndicators.push({ "title": "Location", "subtitle": "Latitude", "value": latitude });
 
-      let location = xml.getElementsByTagName("location")[1]
+      let longitude = location.getAttribute("longitude") || "";
+      dataToIndicators.push({ "title": "Location", "subtitle": "Longitude", "value": longitude });
 
-      let latitude = location.getAttribute("latitude") || ""
-      dataToIndicators.push({ "title": "Location", "subtitle": "Latitude", "value": latitude })
+      let altitude = location.getAttribute("altitude") || "";
+      dataToIndicators.push({ "title": "Location", "subtitle": "Altitude", "value": altitude });
 
-      let longitude = location.getAttribute("longitude") || ""
-      dataToIndicators.push({ "title": "Location", "subtitle": "Longitude", "value": longitude })
+      console.log(dataToIndicators);
+      setIndicators(dataToIndicators);
 
-      let altitude = location.getAttribute("altitude") || ""
-      dataToIndicators.push({ "title": "Location", "subtitle": "Altitude", "value": altitude })
+      // Análisis del XML y almacenamiento de los primeros 6 objetos
+      const times = xml.getElementsByTagName("time");
+      let dataToItems: Item[] = [];
+      for (let i = 0; i < times.length && dataToItems.length < 6; i++) {
+        const time = times[i];
+        const dateStart = time.getAttribute("from") || "";
+        const dateEnd = time.getAttribute("to") || "";
+        const precipitation = time.getElementsByTagName("precipitation")[0].getAttribute("probability") || "";
+        const humidity = time.getElementsByTagName("humidity")[0].getAttribute("value") || "";
+        const clouds = time.getElementsByTagName("clouds")[0].getAttribute("value") || "";
 
-      console.log(dataToIndicators)
-
-      {/* Modificación de la variable de estado mediante la función de actualización */ }
-      setIndicators(dataToIndicators)
-
-    }
+        dataToItems.push({
+          dateStart,
+          dateEnd,
+          precipitation,
+          humidity,
+          clouds,
+        });
+      }
+      setItems(dataToItems);
+    };
 
     request();
+  }, []); // Asegúrate de que el segundo argumento del useEffect sea un arreglo vacío para que se ejecute una sola vez
 
-  }, [])
-
-  let renderIndicators = () => {
-
-    return indicators
-      .map(
-        (indicator, idx) => (
-          <Grid key={idx} size={{ xs: 12, xl: 3 }}>
-            <IndicatorWeather
-              title={indicator["title"]}
-              subtitle={indicator["subtitle"]}
-              value={indicator["value"]} />
-          </Grid>
-        )
-      )
-
-  }
+  const renderIndicators = () => {
+    return indicators.map((indicator, idx) => (
+      <Grid key={idx} size={{ xs: 12, xl: 3 }}>
+        <IndicatorWeather
+          title={indicator["title"]}
+          subtitle={indicator["subtitle"]}
+          value={indicator["value"]}
+        />
+      </Grid>
+    ));
+  };
 
   return (
     <Grid container spacing={5}>
@@ -114,9 +112,8 @@ function App() {
       <Grid size={{ xs: 12, xl: 4 }}>
         <LineChartWeather />
       </Grid>
-
-    </Grid >
-  )
+    </Grid>
+  );
 }
 
-export default App
+export default App;
