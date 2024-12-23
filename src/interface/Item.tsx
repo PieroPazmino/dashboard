@@ -5,4 +5,5 @@ export default interface Item {
     clouds: string;
     humidity: string;
     temperature: string;
+    cloudsAll: string;
 }

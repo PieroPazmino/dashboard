@@ -35,7 +35,7 @@ export default function BasicTable(props: MyProp) {
   };
   return (
     <div>
-      
+
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -55,9 +55,11 @@ export default function BasicTable(props: MyProp) {
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {row.dateStart}
+                  {row.dateStart.split('T')[0] + ' - ' + row.dateStart.split('T')[1]}
                 </TableCell>
-                <TableCell align="right">{row.dateEnd}</TableCell>
+                <TableCell align="right">
+                  {row.dateEnd.split('T')[0] + ' - ' + row.dateEnd.split('T')[1]}
+                </TableCell>
                 <TableCell align="center">{row.precipitation}</TableCell>
                 <TableCell align="center">{row.humidity}</TableCell>
                 <TableCell align="center">{row.clouds}</TableCell>

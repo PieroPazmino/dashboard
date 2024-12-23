@@ -13,11 +13,17 @@ interface Indicator {
   subtitle?: String;
   value?: String;
 }
+interface ChartSeries {
+  data: number[];
+  label: string;
+}
+
 
 function App() {
   const [indicators, setIndicators] = useState<Indicator[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   let [owm, setOWM] = useState(localStorage.getItem("openWeatherMap"))
+  const [selectedVariable, setSelectedVariable] = useState<string>('');
 
   useEffect(() => {
     const request = async () => {
@@ -92,6 +98,7 @@ function App() {
             humidity,
             clouds,
             temperature,
+            cloudsAll
           });
         }
         setItems(dataToItems);
@@ -100,6 +107,38 @@ function App() {
 
     request();
   }, [owm]); // El efecto se ejecutará cada vez que cambie 'owm'
+
+  const handleVariableSelect = (variable: string) => {
+    setSelectedVariable(variable);
+  };
+
+  let LinechartData: ChartSeries[] = []; // Tipo específico para evitar errores de TypeScript
+  let xLabels = items.map(item => item.dateStart.split('T')[1]); // Fechas para las etiquetas del eje X
+
+  switch (selectedVariable) {
+    case 'Temperatura':
+      LinechartData = [{ data: items.map(item => parseFloat(item.temperature)), label: 'Temperatura' }];
+      break;
+    case 'Humedad':
+      // Mostrar Humedad y Precipitación juntas
+      LinechartData = [
+        { data: items.map(item => parseFloat(item.humidity)), label: 'Humedad' },
+        { data: items.map(item => parseFloat(item.precipitation) * 100), label: 'Precipitación (%)' }
+      ];
+      break;
+    case 'Precipitación':
+      // Mostrar Precipitación y Humedad juntas
+      LinechartData = [
+        { data: items.map(item => parseFloat(item.humidity)), label: 'Humedad' },
+        { data: items.map(item => parseFloat(item.precipitation) * 100), label: 'Precipitación (%)' }
+      ];
+      break;
+    case 'Nubosidad':
+      LinechartData = [{ data: items.map(item => parseFloat(item.cloudsAll)), label: 'Nubosidad' }];
+      break;
+    default:
+      LinechartData = []; // Si no hay selección válida, no se muestra ningún dato
+  }
 
   const renderIndicators = () => {
     return indicators.map((indicator, idx) => (
@@ -113,11 +152,6 @@ function App() {
     ));
   };
 
-  const series = [
-    { data: items.map(item => parseFloat(item.precipitation || '0')*100), label: 'Precipitación' },
-    { data: items.map(item => parseInt(item.humidity || '0')), label: 'Humedad' }
-  ];
-  const xLabels = items.map(item => item.dateStart.split('T')[1]); // Asumiendo que dateStart está en formato ISO
   return (
     <Grid container spacing={5}>
       {renderIndicators()}
@@ -126,7 +160,7 @@ function App() {
       {/* Grid Anidado */}
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, xl: 3 }}>
-          <ControlWeather />
+          <ControlWeather onVariableSelect={handleVariableSelect}/>
         </Grid>
         <Grid size={{ xs: 12, xl: 9 }}>
           <TableWeather itemsIn={items} />
@@ -135,8 +169,8 @@ function App() {
 
       {/* Gráfico */}
       <Grid size={{ xs: 12, xl: 4 }}>
-        <LineChartWeather series={series} xLabels={xLabels} />
-      </Grid>
+      {LinechartData.length > 0 && <LineChartWeather series={LinechartData} xLabels={xLabels} />}
+    </Grid>
     </Grid>
   );
 }
