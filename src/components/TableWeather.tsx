@@ -26,10 +26,10 @@ export default function BasicTable(props: MyProp) {
         <TableHead>
           <TableRow>
             <TableCell>Hora de inicio</TableCell>
-            <TableCell align="right">Hora de fin</TableCell>
-            <TableCell align="right">Precipitación</TableCell>
-            <TableCell align="right">Humedad</TableCell>
-            <TableCell align="right">Nubosidad</TableCell>
+            <TableCell align="left">Hora de fin</TableCell>
+            <TableCell align="right">Precipitación - probabilidad</TableCell>
+            <TableCell align="right">Humedad%</TableCell>
+            <TableCell align="right">Nubosidad%</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -42,9 +42,9 @@ export default function BasicTable(props: MyProp) {
                 {row.dateStart}
               </TableCell>
               <TableCell align="right">{row.dateEnd}</TableCell>
-              <TableCell align="right">{row.precipitation}</TableCell>
-              <TableCell align="right">{row.humidity}</TableCell>
-              <TableCell align="right">{row.clouds}</TableCell>
+              <TableCell align="center">{row.precipitation}</TableCell>
+              <TableCell align="center">{row.humidity}</TableCell>
+              <TableCell align="center">{row.clouds}</TableCell>
             </TableRow>
           ))}
         </TableBody>

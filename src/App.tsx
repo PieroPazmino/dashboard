@@ -25,8 +25,8 @@ function App() {
       let expiringTime = localStorage.getItem("expiringTime");
 
       let nowTime = (new Date()).getTime();
-      
-      if(expiringTime === null || nowTime > parseInt(expiringTime)) {
+
+      if (expiringTime === null || nowTime > parseInt(expiringTime)) {
         let API_KEY = "98acfabcda9c5482335016a1b987592d";
         let response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Guayaquil&mode=xml&appid=${API_KEY}`);
         savedTextXML = await response.text();
@@ -44,7 +44,7 @@ function App() {
         setOWM(savedTextXML);
       }
 
-      if(savedTextXML) {
+      if (savedTextXML) {
         // XML Parser
         const parser = new DOMParser();
         const xml = parser.parseFromString(savedTextXML, "application/xml");
@@ -77,7 +77,10 @@ function App() {
           const dateEnd = time.getAttribute("to") || "";
           const precipitation = time.getElementsByTagName("precipitation")[0].getAttribute("probability") || "";
           const humidity = time.getElementsByTagName("humidity")[0].getAttribute("value") || "";
-          const clouds = time.getElementsByTagName("clouds")[0].getAttribute("value") || "";
+          const cloudsElement = time.getElementsByTagName("clouds")[0];
+          const cloudsValue = cloudsElement.getAttribute("value") || "";
+          const cloudsAll = cloudsElement.getAttribute("all") || "";
+          const clouds = `${cloudsValue} - ${cloudsAll}`;
 
           dataToItems.push({
             dateStart,
@@ -106,6 +109,11 @@ function App() {
     ));
   };
 
+  const series = [
+    { data: items.map(item => parseFloat(item.precipitation || '0')*100), label: 'Precipitación' },
+    { data: items.map(item => parseInt(item.humidity || '0')), label: 'Humedad' }
+  ];
+  const xLabels = items.map(item => item.dateStart.split('T')[1]); // Asumiendo que dateStart está en formato ISO
   return (
     <Grid container spacing={5}>
       {renderIndicators()}
@@ -123,7 +131,7 @@ function App() {
 
       {/* Gráfico */}
       <Grid size={{ xs: 12, xl: 4 }}>
-        <LineChartWeather />
+        <LineChartWeather series={series} xLabels={xLabels} />
       </Grid>
     </Grid>
   );
