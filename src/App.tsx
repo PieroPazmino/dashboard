@@ -1,6 +1,6 @@
 // src/App.tsx
-import './App.css'
-import Grid from '@mui/material/Grid2'
+import './App.css';
+import Grid from '@mui/material/Grid2';
 import IndicatorWeather from './components/IndicatorWeather';
 import TableWeather from './components/TableWeather';
 import ControlWeather from './components/ControlWeather';
