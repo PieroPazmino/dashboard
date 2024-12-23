@@ -4,4 +4,5 @@ export default interface Item {
     precipitation: string;
     clouds: string;
     humidity: string;
+    temperature: string;
 }

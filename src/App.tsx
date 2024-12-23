@@ -71,6 +71,8 @@ function App() {
         // Análisis del XML y almacenamiento de los primeros 6 objetos
         const times = xml.getElementsByTagName("time");
         let dataToItems: Item[] = [];
+
+        
         for (let i = 0; i < times.length && dataToItems.length < 6; i++) {
           const time = times[i];
           const dateStart = time.getAttribute("from") || "";
@@ -81,6 +83,7 @@ function App() {
           const cloudsValue = cloudsElement.getAttribute("value") || "";
           const cloudsAll = cloudsElement.getAttribute("all") || "";
           const clouds = `${cloudsValue} - ${cloudsAll}`;
+          const temperature = time.getElementsByTagName("temperature")[0].getAttribute("value") || "0"; // Almacenar temperatura en Kelvin como string
 
           dataToItems.push({
             dateStart,
@@ -88,6 +91,7 @@ function App() {
             precipitation,
             humidity,
             clouds,
+            temperature,
           });
         }
         setItems(dataToItems);
