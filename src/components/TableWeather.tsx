@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 
 interface MyProp {
   itemsIn: Item[];
+  averageTemperature: number; // Nueva propiedad para la temperatura promedio
 }
 
 export default function BasicTable(props: MyProp) {
@@ -69,6 +70,9 @@ export default function BasicTable(props: MyProp) {
           </TableBody>
         </Table>
       </TableContainer>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        Temperatura promedio: {formatTemperature(props.averageTemperature.toString())}
+      </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
         <Button variant="contained" color="primary" onClick={toggleTemperature}>
           {useCelsius ? "Mostrar en Kelvin" : "Mostrar en Celsius"}
