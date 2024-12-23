@@ -17,60 +17,82 @@ interface Indicator {
 function App() {
   const [indicators, setIndicators] = useState<Indicator[]>([]);
   const [items, setItems] = useState<Item[]>([]);
+  let [owm, setOWM] = useState(localStorage.getItem("openWeatherMap"))
 
   useEffect(() => {
     const request = async () => {
-      let API_KEY = "98acfabcda9c5482335016a1b987592d";
-      let response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Guayaquil&mode=xml&appid=${API_KEY}`);
-      let savedTextXML = await response.text();
+      let savedTextXML = localStorage.getItem("openWeatherMap") || "";
+      let expiringTime = localStorage.getItem("expiringTime");
 
-      // XML Parser
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(savedTextXML, "application/xml");
+      let nowTime = (new Date()).getTime();
+      
+      if(expiringTime === null || nowTime > parseInt(expiringTime)) {
+        let API_KEY = "98acfabcda9c5482335016a1b987592d";
+        let response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Guayaquil&mode=xml&appid=${API_KEY}`);
+        savedTextXML = await response.text();
 
-      let dataToIndicators: Indicator[] = [];
+        // Calculando el tiempo de expiración
+        let hours = 0.01; // Esto representa una expiración de 36 segundos
+        let delay = hours * 3600000; // Convertir horas en milisegundos
+        let expiringTime = nowTime + delay;
 
-      let name = xml.getElementsByTagName("name")[0].innerHTML || "";
-      dataToIndicators.push({ "title": "Location", "subtitle": "City", "value": name });
+        // Almacenamiento en LocalStorage
+        localStorage.setItem("openWeatherMap", savedTextXML);
+        localStorage.setItem("expiringTime", expiringTime.toString());
 
-      let location = xml.getElementsByTagName("location")[1];
-
-      let latitude = location.getAttribute("latitude") || "";
-      dataToIndicators.push({ "title": "Location", "subtitle": "Latitude", "value": latitude });
-
-      let longitude = location.getAttribute("longitude") || "";
-      dataToIndicators.push({ "title": "Location", "subtitle": "Longitude", "value": longitude });
-
-      let altitude = location.getAttribute("altitude") || "";
-      dataToIndicators.push({ "title": "Location", "subtitle": "Altitude", "value": altitude });
-
-      console.log(dataToIndicators);
-      setIndicators(dataToIndicators);
-
-      // Análisis del XML y almacenamiento de los primeros 6 objetos
-      const times = xml.getElementsByTagName("time");
-      let dataToItems: Item[] = [];
-      for (let i = 0; i < times.length && dataToItems.length < 6; i++) {
-        const time = times[i];
-        const dateStart = time.getAttribute("from") || "";
-        const dateEnd = time.getAttribute("to") || "";
-        const precipitation = time.getElementsByTagName("precipitation")[0].getAttribute("probability") || "";
-        const humidity = time.getElementsByTagName("humidity")[0].getAttribute("value") || "";
-        const clouds = time.getElementsByTagName("clouds")[0].getAttribute("value") || "";
-
-        dataToItems.push({
-          dateStart,
-          dateEnd,
-          precipitation,
-          humidity,
-          clouds,
-        });
+        // Actualizar el estado con el nuevo valor
+        setOWM(savedTextXML);
       }
-      setItems(dataToItems);
+
+      if(savedTextXML) {
+        // XML Parser
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(savedTextXML, "application/xml");
+
+        let dataToIndicators: Indicator[] = [];
+
+        let name = xml.getElementsByTagName("name")[0].innerHTML || "";
+        dataToIndicators.push({ "title": "Location", "subtitle": "City", "value": name });
+
+        let location = xml.getElementsByTagName("location")[1];
+
+        let latitude = location.getAttribute("latitude") || "";
+        dataToIndicators.push({ "title": "Location", "subtitle": "Latitude", "value": latitude });
+
+        let longitude = location.getAttribute("longitude") || "";
+        dataToIndicators.push({ "title": "Location", "subtitle": "Longitude", "value": longitude });
+
+        let altitude = location.getAttribute("altitude") || "";
+        dataToIndicators.push({ "title": "Location", "subtitle": "Altitude", "value": altitude });
+
+        console.log(dataToIndicators);
+        setIndicators(dataToIndicators);
+
+        // Análisis del XML y almacenamiento de los primeros 6 objetos
+        const times = xml.getElementsByTagName("time");
+        let dataToItems: Item[] = [];
+        for (let i = 0; i < times.length && dataToItems.length < 6; i++) {
+          const time = times[i];
+          const dateStart = time.getAttribute("from") || "";
+          const dateEnd = time.getAttribute("to") || "";
+          const precipitation = time.getElementsByTagName("precipitation")[0].getAttribute("probability") || "";
+          const humidity = time.getElementsByTagName("humidity")[0].getAttribute("value") || "";
+          const clouds = time.getElementsByTagName("clouds")[0].getAttribute("value") || "";
+
+          dataToItems.push({
+            dateStart,
+            dateEnd,
+            precipitation,
+            humidity,
+            clouds,
+          });
+        }
+        setItems(dataToItems);
+      }
     };
 
     request();
-  }, []); // Asegúrate de que el segundo argumento del useEffect sea un arreglo vacío para que se ejecute una sola vez
+  }, [owm]); // El efecto se ejecutará cada vez que cambie 'owm'
 
   const renderIndicators = () => {
     return indicators.map((indicator, idx) => (
@@ -108,3 +130,4 @@ function App() {
 }
 
 export default App;
+

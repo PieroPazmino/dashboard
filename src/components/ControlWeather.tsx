@@ -13,7 +13,7 @@ export default function ControlWeather() {
 
     {/* Constante de referencia a un elemento HTML */ }
     const descriptionRef = useRef<HTMLDivElement>(null);
-
+// @ts-ignore
     let [selected, setSelected] = useState(-1)
     {/* Manejador de eventos */ }
     const handleChange = (event: SelectChangeEvent) => {
